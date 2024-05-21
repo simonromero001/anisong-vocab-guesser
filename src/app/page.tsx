@@ -25,6 +25,7 @@ export default function Home() {
   const [metadataLoaded, setMetadataLoaded] = useState(false);
   const [canPlayThrough, setCanPlayThrough] = useState(false);
   const [isBuffering, setIsBuffering] = useState(true);
+  const [showPlayButton, setShowPlayButton] = useState(true);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const initialFetchRef = useRef(true);
@@ -54,6 +55,7 @@ export default function Home() {
         setMetadataLoaded(false);
         setIsBuffering(true);
         setCanPlayThrough(false);
+        setShowPlayButton(true);
       })
       .catch((err) => {
         console.error("Error fetching random video:", err);
@@ -94,6 +96,7 @@ export default function Home() {
   const playVideo = useCallback(() => {
     const videoElement = videoRef.current;
     if (videoElement && metadataLoaded && canPlayThrough && videoElement.paused) {
+      setShowPlayButton(false);
       if (startTime !== null) {
         videoElement.currentTime = startTime / 1000;
       }
@@ -105,6 +108,7 @@ export default function Home() {
         const duration = (endTime - startTime) / 1000;
         setTimeout(() => {
           videoElement.pause();
+          setShowPlayButton(true);
         }, duration * 1000);
       }
     }
@@ -178,6 +182,27 @@ export default function Home() {
                   role="status"
                 ></div>
                 <span className="visually-hidden">Loading...</span>
+              </div>
+            )}
+            {showPlayButton && (
+              <div
+                className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                onClick={handleVideoClick}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-16 w-16 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M14.752 11.168l-7.148-4.29A1 1 0 006 7.617v8.766a1 1 0 001.604.823l7.148-4.29a1 1 0 000-1.651z"
+                  />
+                </svg>
               </div>
             )}
           </>
