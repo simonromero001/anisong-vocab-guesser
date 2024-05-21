@@ -2,7 +2,7 @@ import "./globals.css";
 
 export const metadata = {
   title: "Anisong Vocab Guesser!",
-  description: "Guess the vocab from the Anisong！",
+  description: "Guess the vocab from the Anisong!",
 };
 
 export default function RootLayout({
