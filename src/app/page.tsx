@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import axios, { AxiosError } from 'axios';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import axios, { AxiosError } from "axios";
 
 const isAxiosError = (error: unknown): error is AxiosError => {
   return (error as AxiosError).isAxiosError !== undefined;
@@ -14,6 +14,42 @@ interface Video {
   startTime: number;
   endTime: number;
 }
+
+const API_BASE_URL =
+process.env.REACT_APP_API_BASE_URL ||
+"https://anisongvocab-efb991b7c074.herokuapp.com"; // Ensure this matches your server's base URL
+
+
+const fetchVideo = async (currentVideoId: string) => {
+  const url = currentVideoId
+    ? `${API_BASE_URL}/api/random-video?currentVideoId=${currentVideoId}`
+    : `${API_BASE_URL}/api/random-video`;
+
+  try {
+    const response = await axios.get<Video>(url, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching random video:", error);
+    throw error;
+  }
+};
+
+const submitGuess = async (videoId: string, guess: string) => {
+  const url = `${API_BASE_URL}/api/videos/${videoId}/guess`;
+
+  try {
+    const response = await axios.post(url, { guess }, { headers: { "Content-Type": "application/json" } });
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting guess:", error);
+    if (isAxiosError(error)) {
+      console.error("Error Response:", error.response?.data);
+    }
+    throw error;
+  }
+};
 
 export default function Home() {
   const [video, setVideo] = useState<Video | null>(null);
@@ -30,68 +66,48 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const initialFetchRef = useRef(true);
 
-  const API_BASE_URL =
-    process.env.REACT_APP_API_BASE_URL ||
-    "https://anisongvocab-efb991b7c074.herokuapp.com"; // Ensure this matches your server's base URL
-
-  const fetchVideo = useCallback(() => {
-    const currentVideoId = video ? video._id : "";
-    const url = currentVideoId
-      ? `${API_BASE_URL}/api/random-video?currentVideoId=${currentVideoId}`
-      : `${API_BASE_URL}/api/random-video`;
-
-    console.log("Fetching video from URL:", url);
-
-    axios
-      .get<Video>(url, { headers: { "Content-Type": "application/json" } })
-      .then((response) => {
-        const data = response.data;
-        setVideo(data);
-        setSentence(data.sentence);
-        setStartTime(data.startTime);
-        setEndTime(data.endTime);
-        setIsCorrect(null);
-        setGuess("");
-        setMetadataLoaded(false);
-        setIsBuffering(true);
-        setCanPlayThrough(false);
-        setShowPlayButton(true);
-      })
-      .catch((err) => {
-        console.error("Error fetching random video:", err);
-      });
-  }, [API_BASE_URL, video]);
+  const handleFetchVideo = useCallback(async () => {
+    try {
+      const data = await fetchVideo(video?._id || "");
+      setVideo(data);
+      setSentence(data.sentence);
+      setStartTime(data.startTime);
+      setEndTime(data.endTime);
+      setIsCorrect(null);
+      setGuess("");
+      setMetadataLoaded(false);
+      setIsBuffering(true);
+      setCanPlayThrough(false);
+      setShowPlayButton(true);
+    } catch (error) {
+      console.error("Error in handleFetchVideo:", error);
+    }
+  }, [video]);
 
   const handleGuessChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGuess(event.target.value);
   };
 
-  const handleGuessSubmit = async (event: React.FormEvent) => {
+  const handleGuessSubmit = useCallback(async (event: React.FormEvent) => {
     event.preventDefault();
-  
+
     if (isCorrect !== null) {
-      fetchVideo();
+      handleFetchVideo();
       return;
     }
-  
+
     if (!video || !guess) {
       console.error("Missing video or guess");
       return;
     }
-  
-    const url = `${API_BASE_URL}/api/videos/${video._id}/guess`;
-  
+
     try {
-      const response = await axios.post(url, { guess }, { headers: { "Content-Type": "application/json" } });
-      const result = response.data;
+      const result = await submitGuess(video._id, guess);
       setIsCorrect(result.correct);
     } catch (error) {
-      console.error("Error submitting guess:", error);
-      if (isAxiosError(error)) {
-        console.error("Error Response:", error.response?.data);
-      }
+      console.error("Error in handleGuessSubmit:", error);
     }
-  };
+  }, [isCorrect, video, guess, handleFetchVideo]);
 
   const playVideo = useCallback(() => {
     const videoElement = videoRef.current;
@@ -120,10 +136,10 @@ export default function Home() {
 
   useEffect(() => {
     if (initialFetchRef.current) {
-      fetchVideo();
+      handleFetchVideo();
       initialFetchRef.current = false;
     }
-  }, [fetchVideo]);
+  }, [handleFetchVideo]);
 
   useEffect(() => {
     const videoElement = videoRef.current;
