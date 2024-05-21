@@ -2,32 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .all-\[unset\] {
+    all: unset;
+  }
+}
+
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --gray-100: rgba(207, 216, 220, 1);
+  --gray-300: rgba(144, 164, 174, 1);
+  --green-700: rgba(56, 142, 60, 1);
+  --label-normal-regular-font-family: "Karla", Helvetica;
+  --label-normal-regular-font-size: 16px;
+  --label-normal-regular-font-style: normal;
+  --label-normal-regular-font-weight: 400;
+  --label-normal-regular-letter-spacing: 0px;
+  --label-normal-regular-line-height: normal;
+  --neutral-white: rgba(255, 255, 255, 1);
+  --red-500: rgba(244, 67, 54, 1);
+  --yellow-700: rgba(251, 192, 45, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+.main-container {
+  padding-top: 164px; /* Height of the header */
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+video::-webkit-media-controls {
+  display: none;
 }
