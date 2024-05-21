@@ -1,6 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import axios from "axios";
+import axios, { AxiosError } from 'axios';
+
+const isAxiosError = (error: unknown): error is AxiosError => {
+  return (error as AxiosError).isAxiosError !== undefined;
+};
 
 // Define an interface for the video object
 interface Video {
@@ -81,8 +85,8 @@ export default function Home() {
       setIsCorrect(result.correct);
     } catch (error) {
       console.error("Error submitting guess:", error);
-      if (error.response) {
-        console.error("Error Response:", error.response.data);
+      if (isAxiosError(error)) {
+        console.error("Error Response:", error.response?.data);
       }
     }
   };
