@@ -111,11 +111,12 @@ export default function Home() {
   const playVideo = useCallback(() => {
     const videoElement = videoRef.current;
     if (videoElement && metadataLoaded && (canPlayThrough || videoElement.readyState >= 3) && videoElement.paused) {
-      setShowPlayButton(false);
       if (startTime !== null) {
         videoElement.currentTime = startTime / 1000;
       }
-      videoElement.play().catch((error) => {
+      videoElement.play().then(() => {
+        setShowPlayButton(false);
+      }).catch((error) => {
         console.error("Error playing video:", error);
       });
     }
@@ -154,7 +155,6 @@ export default function Home() {
         console.log('canplay');
         setCanPlayThrough(true);
         setIsBuffering(false);
-        playVideo();
       };
 
       const handleWaiting = () => {
@@ -200,6 +200,7 @@ export default function Home() {
               className="w-full h-full object-contain mx-auto bg-black rounded"
               src={video.url}
               preload="auto"
+              controls // Add controls to help debug playback issues
             >
               Your browser does not support the video tag.
             </video>
