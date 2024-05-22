@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import axios, { AxiosError } from "axios";
 
 const isAxiosError = (error: unknown): error is AxiosError => {
@@ -16,8 +22,8 @@ interface Video {
 }
 
 const API_BASE_URL =
-process.env.REACT_APP_API_BASE_URL ||
-"https://anisongvocab-efb991b7c074.herokuapp.com"; // Ensure this matches your server's base URL
+  process.env.REACT_APP_API_BASE_URL ||
+  "https://anisongvocab-efb991b7c074.herokuapp.com"; // Ensure this matches your server's base URL
 
 const fetchVideo = async (currentVideoId: string) => {
   const url = currentVideoId
@@ -39,7 +45,11 @@ const submitGuess = async (videoId: string, guess: string) => {
   const url = `${API_BASE_URL}/api/videos/${videoId}/guess`;
 
   try {
-    const response = await axios.post(url, { guess }, { headers: { "Content-Type": "application/json" } });
+    const response = await axios.post(
+      url,
+      { guess },
+      { headers: { "Content-Type": "application/json" } }
+    );
     return response.data;
   } catch (error) {
     console.error("Error submitting guess:", error);
@@ -87,38 +97,49 @@ export default function Home() {
     setGuess(event.target.value);
   };
 
-  const handleGuessSubmit = useCallback(async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleGuessSubmit = useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
 
-    if (isCorrect !== null) {
-      handleFetchVideo();
-      return;
-    }
+      if (isCorrect !== null) {
+        handleFetchVideo();
+        return;
+      }
 
-    if (!video || !guess) {
-      console.error("Missing video or guess");
-      return;
-    }
+      if (!video || !guess) {
+        console.error("Missing video or guess");
+        return;
+      }
 
-    try {
-      const result = await submitGuess(video._id, guess);
-      setIsCorrect(result.correct);
-    } catch (error) {
-      console.error("Error in handleGuessSubmit:", error);
-    }
-  }, [isCorrect, video, guess, handleFetchVideo]);
+      try {
+        const result = await submitGuess(video._id, guess);
+        setIsCorrect(result.correct);
+      } catch (error) {
+        console.error("Error in handleGuessSubmit:", error);
+      }
+    },
+    [isCorrect, video, guess, handleFetchVideo]
+  );
 
   const playVideo = useCallback(() => {
     const videoElement = videoRef.current;
-    if (videoElement && metadataLoaded && (canPlayThrough || videoElement.readyState >= 3) && videoElement.paused) {
+    if (
+      videoElement &&
+      metadataLoaded &&
+      (canPlayThrough || videoElement.readyState >= 3) &&
+      videoElement.paused
+    ) {
+      setShowPlayButton(false);
       if (startTime !== null) {
         videoElement.currentTime = startTime / 1000;
       }
-      videoElement.play().then(() => {
-        setShowPlayButton(false);
-      }).catch((error) => {
-        console.error("Error playing video:", error);
-      });
+      videoElement
+        .play()
+        .then(() => {
+        })
+        .catch((error) => {
+          console.error("Error playing video:", error);
+        });
     }
   }, [metadataLoaded, canPlayThrough, startTime]);
 
@@ -152,7 +173,7 @@ export default function Home() {
       };
 
       const handleCanPlay = () => {
-        console.log('canplay');
+        console.log("canplay");
         setCanPlayThrough(true);
         setIsBuffering(false);
       };
@@ -166,7 +187,7 @@ export default function Home() {
       };
 
       const handleError = (event: Event) => {
-        console.error('Error event:', event);
+        console.error("Error event:", event);
       };
 
       videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
@@ -178,7 +199,10 @@ export default function Home() {
       videoElement.addEventListener("error", handleError);
 
       return () => {
-        videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        videoElement.removeEventListener(
+          "loadedmetadata",
+          handleLoadedMetadata
+        );
         videoElement.removeEventListener("canplay", handleCanPlay);
         videoElement.removeEventListener("canplaythrough", handleCanPlay);
         videoElement.removeEventListener("waiting", handleWaiting);
