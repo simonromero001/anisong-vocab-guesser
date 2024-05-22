@@ -110,7 +110,7 @@ export default function Home() {
 
   const playVideo = useCallback(() => {
     const videoElement = videoRef.current;
-    if (videoElement && metadataLoaded && canPlayThrough && videoElement.paused) {
+    if (videoElement && metadataLoaded && (canPlayThrough || videoElement.readyState >= 3) && videoElement.paused) {
       setShowPlayButton(false);
       if (startTime !== null) {
         videoElement.currentTime = startTime / 1000;
@@ -118,13 +118,6 @@ export default function Home() {
       videoElement.play().catch((error) => {
         console.error("Error playing video:", error);
       });
-    }
-    else {
-      console.log("Not ready to play yet");
-      if (!videoElement) console.log("videoElement is null");
-      if (!metadataLoaded) console.log("metadataLoaded is false");
-      if (!canPlayThrough) console.log("canPlayThrough is false");
-      if (!videoElement?.paused) console.log("videoElement is not paused");
     }
   }, [metadataLoaded, canPlayThrough, startTime]);
 
@@ -153,25 +146,22 @@ export default function Home() {
     const videoElement = videoRef.current;
     if (videoElement) {
       const handleLoadedMetadata = () => {
-        console.log('loadedmetadata');
         setMetadataLoaded(true);
         setIsBuffering(false);
       };
 
-      const handleCanPlayThrough = () => {
-        console.log('canplaythrough');
+      const handleCanPlay = () => {
+        console.log('canplay');
         setCanPlayThrough(true);
         setIsBuffering(false);
         playVideo();
       };
 
       const handleWaiting = () => {
-        console.log('waiting');
         setIsBuffering(true);
       };
 
       const handlePlaying = () => {
-        console.log('playing');
         setIsBuffering(false);
       };
 
@@ -180,7 +170,8 @@ export default function Home() {
       };
 
       videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
-      videoElement.addEventListener("canplaythrough", handleCanPlayThrough);
+      videoElement.addEventListener("canplay", handleCanPlay);
+      videoElement.addEventListener("canplaythrough", handleCanPlay);
       videoElement.addEventListener("waiting", handleWaiting);
       videoElement.addEventListener("playing", handlePlaying);
       videoElement.addEventListener("timeupdate", handleTimeUpdate);
@@ -188,7 +179,8 @@ export default function Home() {
 
       return () => {
         videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
-        videoElement.removeEventListener("canplaythrough", handleCanPlayThrough);
+        videoElement.removeEventListener("canplay", handleCanPlay);
+        videoElement.removeEventListener("canplaythrough", handleCanPlay);
         videoElement.removeEventListener("waiting", handleWaiting);
         videoElement.removeEventListener("playing", handlePlaying);
         videoElement.removeEventListener("timeupdate", handleTimeUpdate);
@@ -207,7 +199,7 @@ export default function Home() {
               onClick={handleVideoClick}
               className="w-full h-full object-contain mx-auto bg-black rounded"
               src={video.url}
-              preload="metadata"
+              preload="auto"
             >
               Your browser does not support the video tag.
             </video>
