@@ -200,7 +200,6 @@ export default function Home() {
               className="w-full h-full object-contain mx-auto bg-black rounded"
               src={video.url}
               preload="auto"
-              controls // Add controls to help debug playback issues
             >
               Your browser does not support the video tag.
             </video>
