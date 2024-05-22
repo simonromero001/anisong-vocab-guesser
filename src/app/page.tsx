@@ -121,6 +121,10 @@ export default function Home() {
     }
     else {
       console.log("Not ready to play yet");
+      if (!videoElement) console.log("videoElement is null");
+      if (!metadataLoaded) console.log("metadataLoaded is false");
+      if (!canPlayThrough) console.log("canPlayThrough is false");
+      if (!videoElement?.paused) console.log("videoElement is not paused");
     }
   }, [metadataLoaded, canPlayThrough, startTime]);
 
