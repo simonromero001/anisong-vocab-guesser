@@ -119,10 +119,12 @@ export default function Home() {
         console.error("Error playing video:", error);
       });
     }
+    else {
+      console.log("Not ready to play yet");
+    }
   }, [metadataLoaded, canPlayThrough, startTime]);
 
   const handleVideoClick = () => {
-    console.log("Video clicked");
     playVideo();
   };
 
