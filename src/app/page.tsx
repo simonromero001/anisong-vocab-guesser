@@ -119,19 +119,21 @@ export default function Home() {
       videoElement.play().catch((error) => {
         console.error("Error playing video:", error);
       });
-
-      if (startTime !== null && endTime !== null) {
-        const duration = (endTime - startTime) / 1000;
-        setTimeout(() => {
-          videoElement.pause();
-          setShowPlayButton(true);
-        }, duration * 1000);
-      }
     }
-  }, [metadataLoaded, canPlayThrough, startTime, endTime]);
+  }, [metadataLoaded, canPlayThrough, startTime]);
 
   const handleVideoClick = () => {
     playVideo();
+  };
+
+  const handleTimeUpdate = () => {
+    const videoElement = videoRef.current;
+    if (videoElement && startTime !== null && endTime !== null) {
+      if (videoElement.currentTime > endTime / 1000) {
+        videoElement.pause();
+        setShowPlayButton(true);
+      }
+    }
   };
 
   useEffect(() => {
@@ -167,15 +169,17 @@ export default function Home() {
       videoElement.addEventListener("canplaythrough", handleCanPlayThrough);
       videoElement.addEventListener("waiting", handleWaiting);
       videoElement.addEventListener("playing", handlePlaying);
+      videoElement.addEventListener("timeupdate", handleTimeUpdate);
 
       return () => {
         videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
         videoElement.removeEventListener("canplaythrough", handleCanPlayThrough);
         videoElement.removeEventListener("waiting", handleWaiting);
         videoElement.removeEventListener("playing", handlePlaying);
+        videoElement.removeEventListener("timeupdate", handleTimeUpdate);
       };
     }
-  }, [video, playVideo]);
+  }, [video, playVideo, startTime, endTime]);
 
   return (
     <main>
