@@ -19,7 +19,6 @@ const API_BASE_URL =
 process.env.REACT_APP_API_BASE_URL ||
 "https://anisongvocab-efb991b7c074.herokuapp.com"; // Ensure this matches your server's base URL
 
-
 const fetchVideo = async (currentVideoId: string) => {
   const url = currentVideoId
     ? `${API_BASE_URL}/api/random-video?currentVideoId=${currentVideoId}`
@@ -207,7 +206,7 @@ export default function Home() {
               Your browser does not support the video tag.
             </video>
             {isBuffering && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 pointer-events-none">
                 <div
                   className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-white"
                   role="status"
