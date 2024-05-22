@@ -147,22 +147,30 @@ export default function Home() {
     const videoElement = videoRef.current;
     if (videoElement) {
       const handleLoadedMetadata = () => {
+        console.log('loadedmetadata');
         setMetadataLoaded(true);
         setIsBuffering(false);
       };
 
       const handleCanPlayThrough = () => {
+        console.log('canplaythrough');
         setCanPlayThrough(true);
         setIsBuffering(false);
         playVideo();
       };
 
       const handleWaiting = () => {
+        console.log('waiting');
         setIsBuffering(true);
       };
 
       const handlePlaying = () => {
+        console.log('playing');
         setIsBuffering(false);
+      };
+
+      const handleError = (event: Event) => {
+        console.error('Error event:', event);
       };
 
       videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
@@ -170,6 +178,7 @@ export default function Home() {
       videoElement.addEventListener("waiting", handleWaiting);
       videoElement.addEventListener("playing", handlePlaying);
       videoElement.addEventListener("timeupdate", handleTimeUpdate);
+      videoElement.addEventListener("error", handleError);
 
       return () => {
         videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
@@ -177,6 +186,7 @@ export default function Home() {
         videoElement.removeEventListener("waiting", handleWaiting);
         videoElement.removeEventListener("playing", handlePlaying);
         videoElement.removeEventListener("timeupdate", handleTimeUpdate);
+        videoElement.removeEventListener("error", handleError);
       };
     }
   }, [video, playVideo, startTime, endTime]);
