@@ -122,6 +122,7 @@ export default function Home() {
   }, [metadataLoaded, canPlayThrough, startTime]);
 
   const handleVideoClick = () => {
+    console.log("Video clicked");
     playVideo();
   };
 
